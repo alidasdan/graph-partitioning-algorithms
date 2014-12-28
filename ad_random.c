@@ -5,9 +5,6 @@
 #include <stdlib.h>
 #include "ad_random.h"
 
-#define True              1    /* boolean true */
-#define False             0    /* boolean false */
-
 /* initializes random number generator with seed or */
 /* with any value if seed = -1 */
 long randomize(long seed)
@@ -44,29 +41,5 @@ int irandom(int min, int max)
         return retval;
     }   /* else */
 }     /* irandom */ 
-
-/* generates a float random number in [min, max] */
-float frandom(float min, float max)
-{
-    if (min >= max) { 
-        return min;
-    } else { 
-        return (float) (rand01() * (max - min) + (float) min);
-    }
-}     /* frandom */ 
-
-/* generates a boolean true value with specified probability */
-int flip(float prob)
-{
-    if (prob >= 1.0) {
-        return True;
-    } else if (prob <= 0.0) {
-        return False; 
-    } else if (rand01() <= prob) {
-        return True;
-    } else {
-        return False; 
-    }
-}     /* flip */
 
 /* EOF */

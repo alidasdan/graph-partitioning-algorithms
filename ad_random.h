@@ -20,10 +20,4 @@ float rand01();
 /* if int output is needed, prms are true min & max */
 int irandom(int min, int max);
 
-/* generates a float random number in [min, max] */
-float frandom(float min, float max);
-
-/* generates a boolean true value with specified probability */
-int flip(float prob);
-
 #endif
