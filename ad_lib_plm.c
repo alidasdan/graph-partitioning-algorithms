@@ -1,6 +1,8 @@
 
 /* COPYRIGHT C 1991- Ali Dasdan */ 
 
+#include <stdio.h>
+#include <stdlib.h>
 #include "ad_defs.h"
 #include "ad_bucketio.h"
 #include "ad_lib.h"
@@ -67,17 +69,19 @@ int select_cell(int noparts,
                 if ((from != to) && (tpcurr_size < tpmax_size)) {
                     int dest_part = map_part_no (to, from);
                     int max_inx = partb[from][dest_part].max_inx;
-                    if (max_inx > 0) {
-                        int cell_no = partb[from][dest_part].bnode_ptr[max_inx]->cell_no;
-                        if ((max_mov_value < max_inx) &&
-                            (fpcurr_size >= (fpmin_size + cells[cell_no].cweight)) &&
-                            ((tpcurr_size + cells[cell_no].cweight) <= tpmax_size)) {
-                            max_mov_value = max_inx;
-                            scell[0].mov_cell_no = cell_no;
-                            scell[0].from_part = from;
-                            scell[0].to_part = to;
-                        }   /* if many conditions */
+                    if (max_inx < 0) {
+                        printf("Error: max_inx cannot be negative.\n");
+                        exit(1);
                     }   /* if */
+                    int cell_no = partb[from][dest_part].bnode_ptr[max_inx]->cell_no;
+                    if ((max_mov_value < max_inx) &&
+                        (fpcurr_size >= (fpmin_size + cells[cell_no].cweight)) &&
+                        ((tpcurr_size + cells[cell_no].cweight) <= tpmax_size)) {
+                        max_mov_value = max_inx;
+                        scell[0].mov_cell_no = cell_no;
+                        scell[0].from_part = from;
+                        scell[0].to_part = to;
+                    }   /* if many conditions */
                 }   /* if */
             }   /* for to */
         }   /* if curr > min */
@@ -212,28 +216,28 @@ void create_partb_nodes_of_cell(int noparts,
                                 partb_t partb[][noparts - 1],
                                 cells_info_t cells_info[])
 {
-    if (cell_no != -1) {
+    if (cell_no == -1) {
+        return;
+    }
 
-        /* for each possible move direction */
-        for (int mov_part_no = 0; mov_part_no < noparts; mov_part_no++) {
+    /* for each possible move direction */
+    for (int mov_part_no = 0; mov_part_no < noparts; mov_part_no++) {
 
-            if (mov_part_no != part_no) {  /* part-no is home_part of cell_no */
+        if (mov_part_no != part_no) {  /* part-no is home_part of cell_no */
 
-                int mov_gain = calculate_gain(cell_no, part_no, mov_part_no, cells_info);
+            int mov_gain = calculate_gain(cell_no, part_no, mov_part_no, cells_info);
 
-                /* find mapped_after calculating gain & max */
-                int mapped_part_no = map_part_no(mov_part_no, part_no);
-                int gain_inx = map_gain(mov_gain, max_gain);
+            /* find mapped_after calculating gain & max */
+            int mapped_part_no = map_part_no(mov_part_no, part_no);
+            int gain_inx = map_gain(mov_gain, max_gain);
 
-                /* create a partb node */
-                create_partb_node(noparts, cell_no, part_no, mapped_part_no, 
-                                  gain_inx, partb, cells_info);
+            /* create a partb node */
+            create_partb_node(noparts, cell_no, part_no, mapped_part_no, 
+                              gain_inx, partb, cells_info);
 
-            }   /* if mapped_part_no not equal part_no */
+        }   /* if mapped_part_no not equal part_no */
 
-        }   /* for mapped_part_no */
-
-    }   /* if */
+    }   /* for mapped_part_no */
 }   /* create_partb_nodes_of_cell */
 
 /* EOF */
