@@ -41,18 +41,18 @@ typedef int allele;
 
 /* partition type */
 typedef struct parts_st {
-    int   pmax_cells;     /* maximum number of cells in partition */
-    int   pmax_size;      /* maximum size of part */
-    int   pmin_size;      /* minimum size of part */
-    int   pcurr_size;     /* current size of part */
-    float pratio;         /* pmax_size / totsize */
+    int  pmax_cells;     /* maximum number of cells in partition */
+    int  pmax_size;      /* maximum size of part */
+    int  pmin_size;      /* minimum size of part */
+    int  pcurr_size;     /* current size of part */
+    float pratio;        /* pmax_size / totsize */
 }   parts_t;
 
 /* individual type */
 typedef struct pop_st {
-    allele  *chrom;    /* string holding partitions */
-    parts_t *parts;    /* partition array */
-    int      incost;   /* sum of net weights - cut cost */
+    allele  *chrom;   /* string holding partitions */
+    parts_t *parts;   /* partition array */
+    int      incost;  /* sum of net weights - cut cost */
 }   ind_t;
  
 /* temporary partition type */
