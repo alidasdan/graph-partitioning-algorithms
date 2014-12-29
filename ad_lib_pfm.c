@@ -20,8 +20,8 @@
 
 /* map a given mov_gain into index to a bucket array */
 int map_gain(int bucketsize,
-             int mov_gain, 
-             int mov_count, 
+             int mov_gain,
+             int mov_count,
              int max_gain,
              eval_t eval[])
 {
@@ -37,8 +37,8 @@ int map_gain(int bucketsize,
  
 /* fill all bucket arrays */
 void create_buckets(int bucketsize,
-                    int nocells, 
-                    int noparts, 
+                    int nocells,
+                    int noparts,
                     int max_gain,
                     eval_t eval[],
                     allele chrom[],
@@ -53,6 +53,7 @@ void create_buckets(int bucketsize,
         /* for each possible move direction */
         for (int mov_part_no = 0; mov_part_no < noparts; mov_part_no++) {
             if (mov_part_no != part_no) {
+
                 int mov_gain = calculate_gain(cell_no, part_no, mov_part_no, cells_info);
 
                 /* find mapped_after calculating gain & max */
@@ -87,11 +88,11 @@ void select_cell(int noparts,
                 int tpmax_size = parts_info[to].pmax_size;
                 int tpcurr_size = parts_info[to].pcurr_size;
                 if ((from != to) && (tpcurr_size < tpmax_size)) {
-                    int dest_part = map_part_no (to, from);
+                    int dest_part = map_part_no(to, from);
                     int max_inx = partb[from][dest_part].max_inx;
                     if (max_inx < 0) {
                         printf("Error: max_inx cannot be negative.\n");
-                        exit(0);
+                        exit(1);
                     }   /* if */
                     int cell_no = partb[from][dest_part].bnode_ptr[max_inx]->cell_no;
                     if ((max_mov_value < max_inx) &&
@@ -108,8 +109,8 @@ void select_cell(int noparts,
     }   /* for from */
 
     if (scell[0].mov_cell_no == -1) {
-        printf("Cannot find a node to move..\n");
-        exit(0);
+        printf("Error: Cannot find a node to move.\n");
+        exit(1);
     }   /* if */
 
     scell[0].mov_gain = calculate_gain(scell[0].mov_cell_no, 
@@ -122,7 +123,6 @@ void select_cell(int noparts,
         cells[scell[0].mov_cell_no].cweight;
     parts_info[scell[0].to_part].pcurr_size +=
         cells[scell[0].mov_cell_no].cweight;
-
 }   /* select_cell */
 
 /* move selected cell, and save the move in a file */
@@ -142,7 +142,7 @@ void move_cell(mcells_t mcells[],
 
 /* update gains after a move */
 void update_gains(int bucketsize,
-                  int noparts, 
+                  int noparts,
                   int max_gain,
                   eval_t eval[],
                   selected_cell_t scell[],
@@ -212,46 +212,46 @@ void fill_eval(int max_gain,
                eval_t eval[])
 {
     for (int i = 0; i <= (2 * max_gain); i++)
-        eval[i].val = (float) exp ((double) (-K * (max_gain - i)));
+        eval[i].val = (float) exp((double) (-K * (max_gain - i)));
 }   /* fill_eval */
 
 void create_partb_nodes_of_cell(int bucketsize,
-                                int noparts, 
-                                int max_gain, 
-                                int cell_no, 
+                                int noparts,
+                                int max_gain,
+                                int cell_no,
                                 int part_no,
                                 eval_t eval[],
                                 partb_t partb[][noparts - 1],
                                 cells_info_t cells_info[])
 {
-    if (cell_no != -1) {
+    if (cell_no == -1) {
+        return;
+    }
 
-        /* for each possible move direction */
-        for (int mov_part_no = 0; mov_part_no < noparts; mov_part_no++) {
+    /* for each possible move direction */
+    for (int mov_part_no = 0; mov_part_no < noparts; mov_part_no++) {
 
-            if (mov_part_no != part_no) {  /* part-no is home_part of cell_no */
+        if (mov_part_no != part_no) {  /* part_no is home_part of cell_no */
 
-                int mov_gain = calculate_gain(cell_no, part_no, mov_part_no, cells_info);
+            int mov_gain = calculate_gain(cell_no, part_no, mov_part_no, cells_info);
 
-                /* find mapped_after calculating gain & max */
-                int mapped_part_no = map_part_no(mov_part_no, part_no);
-                int gain_inx = map_gain(bucketsize, mov_gain, cells_info[cell_no].mcount,
-                                        max_gain, eval);
+            /* find mapped_after calculating gain & max */
+            int mapped_part_no = map_part_no(mov_part_no, part_no);
+            int gain_inx = map_gain(bucketsize, mov_gain, cells_info[cell_no].mcount,
+                                    max_gain, eval);
 
-                /* create a partb node */
-                create_partb_node(noparts, cell_no, part_no, mapped_part_no,
-                                  gain_inx, partb, cells_info);
+            /* create a partb node */
+            create_partb_node(noparts, cell_no, part_no, mapped_part_no,
+                              gain_inx, partb, cells_info);
 
-            }   /* if mapped_part_no not equal part_no */
+        }   /* if mapped_part_no not equal part_no */
 
-        }   /* for mapped_part_no */
-
-    }   /* if */
+    }   /* for mapped_part_no */
 }   /* create_partb_nodes_of_cell */
 
 /* calculate K and scale factor */
-void calculate_scale(int nocells, 
-                     int noparts, 
+void calculate_scale(int nocells,
+                     int noparts,
                      int max_gain,
                      float *K)
 {
@@ -261,14 +261,6 @@ void calculate_scale(int nocells,
     scale = (scale + 1.0 + ratio * noparts * sqrt((double) nocells)) / (scale - 1.0);
     scale = (double) pow(ratio, (double) 1.0 / max_gain);
     scale = (scale + 1.0 + ratio * noparts) / (scale - 1.0);
-
-    /*
-      printf("MAX SCALE VALUE : ");
-      printf("AVERAGE SCALE VALUE : ");
-      printf("%f\n", scale);
-      printf("K = %f\n", *K);
-    */
-
 }   /* calculate_scale */
 
 /* EOF */
