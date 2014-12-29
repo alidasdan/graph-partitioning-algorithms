@@ -5,10 +5,10 @@
 #include "ad_defs.h"
 #include "ad_print.h"
 
-void print_graph(int nocells, 
-                 int nonets, 
-                 int noparts, 
-                 cells_t cells[], 
+void print_graph(int nocells,
+                 int nonets,
+                 int noparts,
+                 cells_t cells[],
                  nets_t nets[])
 {
     printf("\nGRAPH\n");
@@ -21,14 +21,14 @@ void print_graph(int nocells,
     }
 }   /* print_graph */
 
-void print_vars(int nocells, 
-                int noparts, 
-                int nonets, 
-                int totsize, 
-                int cutsize, 
+void print_vars(int nocells,
+                int noparts,
+                int nonets,
+                int totsize,
+                int cutsize,
                 int bucketsize)
 {
-    printf("PRINTING VARS\n");
+    printf("\nGRAPH VARIABLES\n");
     printf("nocells = %d\n", nocells);
     printf("noparts = %d\n", noparts);
     printf("nonets = %d\n", nonets);
@@ -42,11 +42,11 @@ void print_parts(int nocells,
                  ind_t *ind, 
                  allele tchrom[])
 {
-    printf("PRINTING PARTS\n");
+    printf("\nPARTS\n");
 
     for (int i = 0; i < noparts; i++) {
 
-        printf("part_no=%d: %d <= %d <= %d * #cells=%d\n", i, 
+        printf("part_no=%d: %d <= %d <= %d * #cells=%d\n", i,
                ind->parts[i].pmin_size,
                ind->parts[i].pcurr_size,
                ind->parts[i].pmax_size,
@@ -68,12 +68,12 @@ void print_parts(int nocells,
     }   /* for i */
 }   /* print_parts */
 
-void print_parts_info(int nocells, 
-                      int noparts, 
-                      allele chrom[], 
+void print_parts_info(int nocells,
+                      int noparts,
+                      allele chrom[],
                       parts_info_t parts_info[])
 {
-    printf("PRINTING PARTS_INFO\n");
+    printf("\nPARTS_INFO\n");
 
     for (int i = 0; i < noparts; i++) {
 
@@ -94,8 +94,8 @@ void print_parts_info(int nocells,
     }   /* for i */
 }   /* print_parts_info */
 
-void print_cells(int nocells, 
-                 cells_t cells[], 
+void print_cells(int nocells,
+                 cells_t cells[],
                  corn_t cnets[])
 {
     printf("\nCELLS\n");
@@ -106,9 +106,10 @@ void print_cells(int nocells,
         printf("c=%d #n=%d cw=%d nl=%d ns= ", 
                i, cells[i].cno_nets, cells[i].cweight, cells[i].netlist);
 
+        totsize += cells[i].cweight;
+
         for (int j = 0; j < cells[i].cno_nets; j++)
             printf("%d ", cnets[cells[i].netlist + j].corn_no);
-        totsize += cells[i].cweight;
 
         printf("\n");
 
@@ -144,24 +145,29 @@ void print_cnets(int nonets, corn_t cnets[])
 
 void print_chrom(int nocells, allele chrom[])
 {
-    printf("CHROM:\n");  
-
+    printf("\nCHROM:\n");
     for (int i = 0; i < nocells; i++) {
         printf("%d ", chrom[i]);
     }
-
     printf("\n");
 }   /* print_chrom */
 
-void print_cells_info(int nocells, cells_info_t cells_info[])
+void print_cells_info(int nocells, 
+                      int noparts, 
+                      cells_info_t cells_info[])
 {
-    printf("PRINTING CELLS_INFO\n");
+    printf("\nCELLS_INFO\n");
+    for (int i = 0; i < nocells; i++) {
+        printf("c=%d mc=%d l=%d mg= ", i, cells_info[i].mcount, cells_info[i].locked);
+        for (int j = 0; j < noparts; j++) 
+            printf("%d ", cells_info[i].mgain[j]);
+        printf("\n");
+    }   /* for i */
 }   /* print_cells_info */
 
 void print_inx(int noparts, partb_t partb[][noparts - 1])
 {
-    printf("PRINTING INDICES:\n");
-
+    printf("\nINDICES:\n");
     for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < (noparts - 1); j++) {
             printf("(%d,%d) max=%d min=%d nobucs=%d\n", 
@@ -170,11 +176,11 @@ void print_inx(int noparts, partb_t partb[][noparts - 1])
     }  /* for i */
 }   /* print_inx */
 
-void print_buckets(int noparts, 
-                   int bucketsize, 
+void print_buckets(int noparts,
+                   int bucketsize,
                    partb_t partb[][noparts - 1])
 {
-    printf("PARTB:\n");
+    printf("\nPARTB:\n");
 
     for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < (noparts - 1); j++) {
