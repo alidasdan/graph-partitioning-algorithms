@@ -20,9 +20,9 @@ void init_cells(int nocells, cells_t cells[])
 }   /* init_cells */
 
 /* initialize netlist pointers */
-void init_netlist(int nonets, 
-                  cells_t cells[], 
-                  nets_t nets[], 
+void init_netlist(int nonets,
+                  cells_t cells[],
+                  nets_t nets[],
                   corn_t cnets[])
 {
     for (int i = 0; i < nonets; i++) {
@@ -46,8 +46,7 @@ void init_netlist(int nonets,
 /* read input graph size to allocate memory */
 void read_graph_size(char fname[],
                      int  *nocells,
-                     int  *nonets,
-                     int  noparts)
+                     int  *nonets)
 {
     FILE *fp;
 
@@ -59,7 +58,7 @@ void read_graph_size(char fname[],
         exit(1);
     } 
 
-    if ((*nocells < 0) || (noparts < 0) || (*nonets < 0)) {
+    if ((*nocells < 0) || (*nonets < 0)) {
         printf("Error: Invalid attributes of graph.\n");
         close_file(&fp);
         exit(1);
@@ -69,21 +68,20 @@ void read_graph_size(char fname[],
 }   /* read_graph_size */
 
 /* read input graph and construct cell, net arrays */
-void read_graph(char fname[], 
-                int  nocells, 
-                int  nonets, 
-                int  noparts, 
-                int *totsize, 
+void read_graph(char fname[],
+                int  nocells,
+                int  nonets,
+                int  noparts,
+                int *totsize,
                 int *totcellsize,
-                int *max_density, 
-                int *max_cweight, 
+                int *max_density,
+                int *max_cweight,
                 int *max_nweight,
-                cells_t cells[], 
-                nets_t  nets[], 
+                cells_t cells[],
+                nets_t  nets[],
                 corn_t  cnets[])
 {
     FILE *fp;
-
     open_file(&fp, fname, "r");
 
     /* graph size is already read so re-read and discard. */
@@ -101,8 +99,10 @@ void read_graph(char fname[],
     *max_nweight = -1;
     *totsize = 0;
     for (int i = 0; i < nonets; i++) {
-        int temp;
-        if (fscanf(fp, "%d%d%d%d", &nets[i].nweight, &temp, &nets[i].ncells[0], &nets[i].ncells[1]) == EOF) {
+        int ignore;  /* this is the number of pins on this net; it
+                        makes sense for hypergraphs; for graphs, it is
+                        always 2. */
+        if (fscanf(fp, "%d%d%d%d", &nets[i].nweight, &ignore, &nets[i].ncells[0], &nets[i].ncells[1]) == EOF) {
             printf("Error: Cannot read from %s: errno= %d error= %s\n", fname, errno, strerror(errno));
             close_file(&fp);
             exit(1);
@@ -111,7 +111,7 @@ void read_graph(char fname[],
         cells[nets[i].ncells[0]].cno_nets++;
         cells[nets[i].ncells[1]].cno_nets++;
         *totsize += nets[i].nweight;
-        if (nets[i].nweight > (*max_nweight)) {    /* find max net weight */
+        if (nets[i].nweight > (*max_nweight)) {
             *max_nweight = nets[i].nweight;
         }
     }   /* for */
@@ -123,15 +123,17 @@ void read_graph(char fname[],
     int part_sum = 0;
     for (int i = 0; i < nocells; i++) {
         if (fscanf(fp, "%d", &cells[i].cweight) == EOF) {
-            printf("Error reading from %s: errno= %d error= %s\n", fname, errno, strerror(errno));
+            printf("Error: Cannot read from %s: errno= %d error= %s\n", fname, errno, strerror(errno));
             close_file(&fp);
             exit(1);
         }
         (*totcellsize) += cells[i].cweight;
-        if (cells[i].cweight > (*max_cweight))     /* find max cell weight */
+        if (cells[i].cweight > (*max_cweight)) { 
             *max_cweight = cells[i].cweight;
-        if (cells[i].cno_nets > (*max_density))    /* find max density */
+        }
+        if (cells[i].cno_nets > (*max_density)) {
             *max_density = cells[i].cno_nets;
+        }
         cells[i].netlist = part_sum;
         part_sum += cells[i].cno_nets;
     }   /* for */
