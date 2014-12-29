@@ -66,27 +66,38 @@ int main(int argc, char *argv[])
     seed = randomize((long)  seed);
     printf("SEED = %ld fname = %s\n", seed, fname);
 
-    read_graph_size(fname, &nocells, &nonets, noparts);
+    read_graph_size(fname, &nocells, &nonets);
+
+    /* determine what in- & out-count imply */
+    int max_moved_cells = incount * nocells / 4;
+    switch (outcount) {
+    case 1 : outcount = nocells; break;
+    case 2 : outcount = nocells * noparts; break;
+    case 3 : outcount = nocells * noparts * noparts; break;
+    default : break;
+    }
+    /* max_noiter = outcount / max_moved_cells;*/ /* do that many iterations */
+    int max_noiter = outcount;
 
     /* alloc memory (statically if possible) */
     cells_t            cells[nocells];
     nets_t             nets[nonets];
     corn_t             cnets[2 * nonets];
     ind_t              pop[MAX_POP];             /* population */
-    for (int i = 0; i < MAX_POP; ++i) {
+    for (int i = 0; i < MAX_POP; i++) {
         pop[i].chrom = (allele *) calloc(nocells, sizeof(allele));
         pop[i].parts = (parts_t *) calloc(noparts, sizeof(parts_t));
     }
     partb_t            partb[noparts][noparts - 1];  /* partition buckets */
     cells_info_t       cells_info[nocells];
-    for (int i = 0; i < nocells; ++i) {
+    for (int i = 0; i < nocells; i++) {
         cells_info[i].mgain = (int *) calloc(noparts, sizeof(int));
         cells_info[i].partb_ptr = (bnode_ptr_t *) calloc(noparts - 1, sizeof(bnode_ptr_t));
         cells_info[i].partb_gain_inx = (int *) calloc(noparts - 1, sizeof(int));
     }
     /* additional information for cells */
     selected_cell_t    scell[1];     /* selected cell type */
-    mcells_t           mcells[2 * nocells * noparts * noparts];  /* array of cells moved */
+    mcells_t           mcells[2 * max_noiter];  /* array of cells moved */
     parts_info_t       parts_info[noparts];
     allele             tchrom[nocells];
  
@@ -98,7 +109,7 @@ int main(int argc, char *argv[])
     bucketsize = 2 * max_gain + 1;
 
     /* alloc memory (statically if possible) */
-    for (int i = 0; i < noparts; ++i) {
+    for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < noparts - 1; ++j) {
             partb[i][j].bnode_ptr = (bnode_ptr_t *) calloc(bucketsize, sizeof(bnode_ptr_t));
         }
@@ -121,17 +132,6 @@ int main(int argc, char *argv[])
 #ifdef DEBUG
     printf("Totalsize = %d Initial cutsize = %d\n", totsize, cutsize);
 #endif
-
-    /* determine what in- & out-count imply */
-    int max_moved_cells = incount * nocells / 4;
-    switch (outcount) {
-    case 1 : outcount = nocells; break;
-    case 2 : outcount = nocells * noparts; break;
-    case 3 : outcount = nocells * noparts * noparts; break;
-    default : break;
-    }
-    /* max_noiter = outcount / max_moved_cells;*/ /* do that many iterations */
-    int max_noiter = outcount;
 
     int gain_sum;
     int glob_inx = 0;
@@ -176,8 +176,7 @@ int main(int argc, char *argv[])
                 nlocked++;
 
                 noiter++;
-            } while ((nlocked < max_moved_cells) && 
-                     (noiter < max_noiter)); 
+            } while ((nlocked < max_moved_cells) && (noiter < max_noiter)); 
 
             free_nodes(noparts, bucketsize, partb);
 
@@ -218,16 +217,16 @@ int main(int argc, char *argv[])
 #endif
 
     /* free memory */
-    for (int i = 0; i < MAX_POP; ++i) {
+    for (int i = 0; i < MAX_POP; i++) {
         cfree(pop[i].chrom);
         cfree(pop[i].parts);
     }
-    for (int i = 0; i < nocells; ++i) {
+    for (int i = 0; i < nocells; i++) {
         cfree(cells_info[i].mgain);
         cfree(cells_info[i].partb_ptr);
         cfree(cells_info[i].partb_gain_inx);
     }
-    for (int i = 0; i < noparts; ++i) {
+    for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < noparts - 1; ++j) {
             cfree(partb[i][j].bnode_ptr);
         }
