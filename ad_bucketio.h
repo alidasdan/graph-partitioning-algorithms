@@ -15,22 +15,21 @@ void create_partb_node(int noparts,
 /* insert a node into partb */
 void insert_partb_node(bnode_ptr_t tnode_ptr,
                        int mapped_dest_part, 
-                       int mov_gain_inx, 
-                       partb_t *partb_ptr, 
+                       int mov_gain_inx,
+                       partb_t *partb_ptr,
                        cells_info_t *cells_info_ptr);
 
 /* delete all nodes of a cell from partb */
 void delete_partb_nodes_of_cell(int noparts, 
                                 int mov_cell_no, 
-                                int home_part, 
-                                partb_t partb[][noparts - 1], 
+                                int home_part,
+                                partb_t partb[][noparts - 1],
                                 cells_info_t cells_info[]);
 
 /* delete a partb node */
 bnode_ptr_t delete_partb_node(int deletion_ok, 
                               int mapped_dest_part,
-                              partb_t *partb_ptr, 
+                              partb_t *partb_ptr,
                               cells_info_t *cells_info_ptr);
 
 #endif
-
