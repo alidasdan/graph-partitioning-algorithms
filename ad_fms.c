@@ -51,25 +51,25 @@ int main(int argc, char *argv[])
     if (argc > 3) {
         seed = (long) atoi(argv[3]);
     } else {
-        seed = -1;
+        seed = (long) -1;
     }
-    seed = randomize((long)  seed);
+    seed = randomize((long) seed);
     printf("SEED = %ld fname = %s\n", seed, fname);
 
-    read_graph_size(fname, &nocells, &nonets, noparts);
+    read_graph_size(fname, &nocells, &nonets);
 
     /* alloc memory (statically if possible) */
     cells_t            cells[nocells];
     nets_t             nets[nonets];
     corn_t             cnets[2 * nonets];
     ind_t              pop[MAX_POP];             /* population */
-    for (int i = 0; i < MAX_POP; ++i) {
+    for (int i = 0; i < MAX_POP; i++) {
         pop[i].chrom = (allele *) calloc(nocells, sizeof(allele));
         pop[i].parts = (parts_t *) calloc(noparts, sizeof(parts_t));
     }
     partb_t            partb[noparts][noparts - 1];  /* partition buckets */
     cells_info_t       cells_info[nocells];
-    for (int i = 0; i < nocells; ++i) {
+    for (int i = 0; i < nocells; i++) {
         cells_info[i].mgain = (int *) calloc(noparts, sizeof(int));
         cells_info[i].partb_ptr = (bnode_ptr_t *) calloc(noparts - 1, sizeof(bnode_ptr_t));
         cells_info[i].partb_gain_inx = (int *) calloc(noparts - 1, sizeof(int));
@@ -85,12 +85,9 @@ int main(int argc, char *argv[])
 
     max_gain = max_density * max_nweight; 
     bucketsize = 2 * max_gain + 1;
-#ifdef DEBUG
-    printf("%d < %d\n", 2 * max_gain + 1, bucketsize);
-#endif
 
     /* alloc memory (statically if possible) */
-    for (int i = 0; i < noparts; ++i) {
+    for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < noparts - 1; ++j) {
             partb[i][j].bnode_ptr = (bnode_ptr_t *) calloc(bucketsize, sizeof(bnode_ptr_t));
         }
@@ -187,16 +184,16 @@ int main(int argc, char *argv[])
 #endif
 
     /* free memory */
-    for (int i = 0; i < MAX_POP; ++i) {
+    for (int i = 0; i < MAX_POP; i++) {
         cfree(pop[i].chrom);
         cfree(pop[i].parts);
     }
-    for (int i = 0; i < nocells; ++i) {
+    for (int i = 0; i < nocells; i++) {
         cfree(cells_info[i].mgain);
         cfree(cells_info[i].partb_ptr);
         cfree(cells_info[i].partb_gain_inx);
     }
-    for (int i = 0; i < noparts; ++i) {
+    for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < noparts - 1; ++j) {
             cfree(partb[i][j].bnode_ptr);
         }
