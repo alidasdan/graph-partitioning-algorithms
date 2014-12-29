@@ -51,7 +51,9 @@ minimum. For more details, please refer to [DaAy97].
 
 I originally developed this package in C during my MSc study (around
 1991-1993). Before putting this package on github, I converted my code
-to ANSI C (c99) and cleaned it a bit.
+to ANSI C (c99) and cleaned it a bit. For very large inputs, it is a
+good idea to convert all variable-length arrays into dynamically
+allocated arrays.
 
 In my code, you may notice some biologically inspired names such as
 'population', 'chromosome', 'allele', etc. These names actually come
