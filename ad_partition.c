@@ -11,10 +11,10 @@
 #include "ad_partition.h"
 
 /* create initial partition */
-int create_partition(int nocells, 
-                     int noparts, 
-                     int totsize, 
-                     cells_t cells[], 
+int create_partition(int nocells,
+                     int noparts,
+                     int totsize,
+                     cells_t cells[],
                      ind_t *ind)
 {
     /* init current size */
@@ -54,7 +54,7 @@ int create_partition(int nocells,
         }   /* for j */
         min_inx = tparts[irandom(0, tcount)];
 
-        /* assign cell to part[min_size] */
+        /* assign cell i to part[min_inx] */
         ind->chrom[i] = min_inx;
         ind->parts[min_inx].pcurr_size += cells[i].cweight; 
         ind->parts[min_inx].pmax_cells++; 
@@ -65,8 +65,9 @@ int create_partition(int nocells,
     for (int i = 0; i < noparts; i++) {
         float part_size = ((float) totsize) * ind->parts[i].pratio;
         ind->parts[i].pmax_size = (int) (part_size * (1.0 + off_ratio) + 1.0);
-        if (ind->parts[i].pmax_size > max_size) 
+        if (ind->parts[i].pmax_size > max_size) { 
             max_size = ind->parts[i].pmax_size;
+        }
         ind->parts[i].pmin_size = (int) (part_size * (1.0 - off_ratio) - 1.0);
     }   /* for i */ 
 
@@ -76,8 +77,8 @@ int create_partition(int nocells,
 }   /* create_partition */
 
 /* copy partition properties to parts_info for temporary use */
-void copy_partition(int noparts, 
-                    parts_info_t parts_info[], 
+void copy_partition(int noparts,
+                    parts_info_t parts_info[],
                     ind_t *ind)
 {
     for (int i = 0; i < noparts; i++) {
@@ -89,9 +90,9 @@ void copy_partition(int noparts,
 }   /* copy_partition */
 
 /* read a partition prepared beforehand */
-int read_partition(FILE *fp, 
-                   char *filename, 
-                   int noparts, 
+int read_partition(FILE *fp,
+                   char *filename,
+                   int noparts,
                    ind_t *ind)
 {
     int max_size = -1; 
@@ -116,11 +117,13 @@ int read_partition(FILE *fp,
             max_size = ind->parts[part_no].pmax_size;
 
         for (int j = 0; j < ind->parts[part_no].pmax_cells; j++) {
+
             int cell_no;
             if (fscanf(fp, "%d", &cell_no) == EOF) {
                 printf("Error: Cannot read from %s: errno= %d error= %s\n", filename, errno, strerror(errno));
             }
             ind->chrom[cell_no] = part_no; 
+
         }   /* for j */
 
     }   /* for i */
@@ -131,10 +134,10 @@ int read_partition(FILE *fp,
 }   /* read_partition */
 
 /* write a partition */
-void write_partition(FILE *fp, 
-                     char *filename, 
-                     int nocells, 
-                     int noparts, 
+void write_partition(FILE *fp,
+                     char *filename,
+                     int nocells,
+                     int noparts,
                      ind_t *ind)
 {
     open_file(&fp, filename, "w");
