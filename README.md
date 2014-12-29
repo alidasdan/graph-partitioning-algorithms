@@ -1,10 +1,9 @@
 graph-partitioning-algorithms
 =============================
 
-This directory contains multi-way partitioning algorithms: FMS
+This package contains multi-way partitioning algorithms: FMS
 (Fiduccia-Mattheyses-Sanchis), PLM (Partitioning by Locked Moves), PFM
 (Partitioning by Free Moves) as detailed in [DaAy97]. 
-
 
 ## THE GRAPH PARTITIONING PROBLEM
 
