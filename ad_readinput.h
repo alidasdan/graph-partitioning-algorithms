@@ -15,8 +15,7 @@ void init_netlist(int nonets,
 /* read input graph size to allocate memory */
 void read_graph_size(char fname[],
                      int  *nocells,
-                     int  *nonets,
-                     int  noparts);
+                     int  *nonets);
 
 /* read input graph and construct cell, net arrays */
 void read_graph(char fname[], 
