@@ -36,7 +36,9 @@ void print_cnets(int nonets, corn_t cnets[]);
 
 void print_chrom(int nocells, allele chrom[]);
 
-void print_cells_info(int nocells, cells_info_t cells_info[]);
+void print_cells_info(int nocells, 
+                      int noparts,
+                      cells_info_t cells_info[]);
 
 void print_inx(int noparts, partb_t partb[][noparts - 1]);
 
