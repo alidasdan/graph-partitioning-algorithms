@@ -29,13 +29,11 @@ int max_gain;          /* max gain of a cell */
 int max_density;       /* max density of a cell */
 int max_cweight;       /* max cell weight */
 int max_nweight;       /* max net weight */
-int mov_count;         /* count of total moves */
-int msize;             /* index to mcells */
 
 int main(int argc, char *argv[])
 {
-    if (argc < 4) {
-        printf("\nUsage: %s InputFileName NoParts Version [Seed]\n", argv[0]);
+    if (argc < 5) {
+        printf("\nUsage: %s InputFileName NoParts Version BucketSizeFactor [Seed]\n", argv[0]);
         exit(1);
     }  /* if */
 
@@ -45,29 +43,43 @@ int main(int argc, char *argv[])
     noparts = atoi(argv[2]);
     int version = atoi(argv[3]);
 
+    int bucketsize_factor = atoi(argv[4]);
+
     long seed;
-    if (argc > 4) {
-        seed = (long) atoi(argv[4]);
+    if (argc > 5) {
+        seed = (long) atoi(argv[5]);
     } else {
         seed = (long) -1;
     }
     seed = randomize((long)  seed);
     printf("SEED = %ld fname = %s\n", seed, fname);
 
-    read_graph_size(fname, &nocells, &nonets, noparts);
+    read_graph_size(fname, &nocells, &nonets);
+
+    /* determine max_noiter based on pfm version */
+    /* pfm1: size=max_cells; 
+       pfm2: size=max_cells * max_parts; 
+       pfm3: size=max_cells * max_parts^2 */
+    int max_noiter = nocells;
+    switch (version) {
+    case 1 : break;
+    case 2 : max_noiter *= noparts; break;
+    case 3 : max_noiter *= noparts * noparts; break;
+    default : break;
+    }
 
     /* alloc memory (statically if possible) */
     cells_t            cells[nocells];
     nets_t             nets[nonets];
     corn_t             cnets[2 * nonets];
     ind_t              pop[MAX_POP];             /* population */
-    for (int i = 0; i < MAX_POP; ++i) {
+    for (int i = 0; i < MAX_POP; i++) {
         pop[i].chrom = (allele *) calloc(nocells, sizeof(allele));
         pop[i].parts = (parts_t *) calloc(noparts, sizeof(parts_t));
     }
     partb_t            partb[noparts][noparts - 1];  /* partition buckets */
     cells_info_t       cells_info[nocells];
-    for (int i = 0; i < nocells; ++i) {
+    for (int i = 0; i < nocells; i++) {
         cells_info[i].mgain = (int *) calloc(noparts, sizeof(int));
         cells_info[i].partb_ptr = (bnode_ptr_t *) calloc(noparts - 1, sizeof(bnode_ptr_t));
         cells_info[i].partb_gain_inx = (int *) calloc(noparts - 1, sizeof(int));
@@ -75,8 +87,7 @@ int main(int argc, char *argv[])
     /* additional information for cells */
     selected_cell_t    scell[1];     /* selected cell */
     selected_cell_t    prev_scell[1]; /* previously selected cell */
-    mcells_t           mcells[nocells * noparts * noparts];  /* array of cells moved */
-    /* pfm1: size=max_cells; pfm2: size=max_cells * max_parts; pfm3: size=max_cells * max_parts^2 */
+    mcells_t           mcells[max_noiter];  /* array of cells moved */
     parts_info_t       parts_info[noparts];
     allele             tchrom[nocells];
     eval_t             *eval;
@@ -86,23 +97,15 @@ int main(int argc, char *argv[])
                cells, nets, cnets);
 
     float K;
-    int BUCKET_MAP = 800;
     max_gain = max_density * max_nweight;
     int bucketsize = 2 * max_gain + 1;
-    if (bucketsize > BUCKET_MAP) {
-        printf("Error: Bucket_map is too small. Change value in defs.h.\n");
-        exit(1);
+    if (bucketsize_factor > 0) {
+        /* bucketsize has impact on cutsize and runtime */
+        bucketsize *= bucketsize_factor;
     }
     eval = (eval_t *) calloc(2 * max_gain + 1, sizeof(eval_t));
     calculate_scale(nocells, noparts, max_gain, &K);
     fill_eval(max_gain, K, eval); 
-
-    /* alloc memory (statically if possible) */
-    for (int i = 0; i < noparts; ++i) {
-        for (int j = 0; j < noparts - 1; ++j) {
-            partb[i][j].bnode_ptr = (bnode_ptr_t *) calloc(bucketsize, sizeof(bnode_ptr_t));
-        }
-    }
 
     create_partition(nocells, noparts, totcellsize, cells, &pop[0]);
 
@@ -114,6 +117,13 @@ int main(int argc, char *argv[])
     }
 #endif
 
+    /* alloc memory (statically if possible) */
+    for (int i = 0; i < noparts; i++) {
+        for (int j = 0; j < noparts - 1; ++j) {
+            partb[i][j].bnode_ptr = (bnode_ptr_t *) calloc(bucketsize, sizeof(bnode_ptr_t));
+        }
+    }
+
     init_buckets(noparts, bucketsize, partb);
     cutsize = find_cut_size(nonets, totsize, nets, &pop[0]);
 
@@ -121,15 +131,6 @@ int main(int argc, char *argv[])
     printf("BB bucketsize=%d\n", bucketsize);
     printf("Totalsize = %d Initial cutsize = %d\n", totsize, cutsize); 
 #endif
-
-    /* determine max_noiter based on pfm version */
-    int max_noiter = nocells;
-    switch (version) {
-    case 1 : break;
-    case 2 : max_noiter *= noparts; break;
-    case 3 : max_noiter *= noparts * noparts; break;
-    default : break;
-    }
 
     int gain_sum;
     int glob_inx = 0;
@@ -149,9 +150,9 @@ int main(int argc, char *argv[])
                        partb, cells_info);
 
         prev_scell[0].mov_cell_no = -1;
-        mov_count = 0;
 
-        msize = 0;
+        int msize = 0; /* index to mcells */
+        int mov_count = 0; /* count of total moves */
         while (mov_count < max_noiter) {
 
             select_cell(noparts, scell, parts_info, cells, partb, cells_info);
@@ -161,9 +162,9 @@ int main(int argc, char *argv[])
             msize++;
 
             /* insert previous cell */
-            create_partb_nodes_of_cell(bucketsize, noparts, max_gain, 
+            create_partb_nodes_of_cell(bucketsize, noparts, max_gain,
                                        prev_scell[0].mov_cell_no,
-                                       prev_scell[0].to_part, 
+                                       prev_scell[0].to_part,
                                        eval, partb, cells_info);
 
             update_gains(bucketsize, noparts, max_gain, eval, scell, tchrom, cells,
@@ -208,8 +209,6 @@ int main(int argc, char *argv[])
     printf("pass_no = %d Final cutsize = %d Check cutsize = %d\n", pass_no, 
            cutsize, find_cut_size(nonets, totsize, nets, &pop[0]));
 
-    cfree(eval);
-
 #ifdef DEBUG
     printf("Final : Part_no min_size curr_size max_size\n");
     for (int i = 0; i < noparts; i++) {
@@ -219,16 +218,18 @@ int main(int argc, char *argv[])
 #endif
 
     /* free memory */
-    for (int i = 0; i < MAX_POP; ++i) {
+    cfree(eval);
+
+    for (int i = 0; i < MAX_POP; i++) {
         cfree(pop[i].chrom);
         cfree(pop[i].parts);
     }
-    for (int i = 0; i < nocells; ++i) {
+    for (int i = 0; i < nocells; i++) {
         cfree(cells_info[i].mgain);
         cfree(cells_info[i].partb_ptr);
         cfree(cells_info[i].partb_gain_inx);
     }
-    for (int i = 0; i < noparts; ++i) {
+    for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < noparts - 1; ++j) {
             cfree(partb[i][j].bnode_ptr);
         }
