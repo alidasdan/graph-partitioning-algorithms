@@ -27,18 +27,21 @@ void find_other_cell(int net_no,
  
 /* initialize all bucket indices and pointers */
 void init_buckets(int noparts, 
-                  int bucketsize, 
+                  int bucketsize,
                   partb_t partb[][noparts - 1])
 {
     /* init partition bucket indices */
     for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < (noparts - 1); j++) {
+
             partb[i][j].max_inx = partb[i][j].min_inx = -1;
             partb[i][j].nobuckets = 0;
+
             /* init partb bucket pointers */
             for (int k = 0; k < bucketsize; k++) {
                 partb[i][j].bnode_ptr[k] = NULL;
             }
+
         }   /* for j */
     }   /* for i */
 }   /* init_buckets */
@@ -46,11 +49,11 @@ void init_buckets(int noparts,
 /* map part no such that home_part is excluded */
 int map_part_no(int dest_part, int home_part)
 {
-    if (dest_part < home_part) 
+    if (dest_part < home_part) {
         return (dest_part);
-    else if (dest_part > home_part) 
+    } else if (dest_part > home_part) {
         return (dest_part - 1);
-    else {
+    } else {
         printf("Error: Unexpected inputs\n");
         exit(1);
     }
@@ -59,7 +62,7 @@ int map_part_no(int dest_part, int home_part)
 /* compute move gain from home_part to dest_part */
 int calculate_gain(int cell_no, 
                    int home_part, 
-                   int dest_part, 
+                   int dest_part,
                    cells_info_t cells_info[])
 {
     int mov_gain = cells_info[cell_no].mgain[dest_part] - 
@@ -69,16 +72,16 @@ int calculate_gain(int cell_no,
 
 /* compute gains of all cells and place them into cells_info */
 void compute_gains(int nocells, 
-                   int noparts, 
+                   int noparts,
                    allele tchrom[],
-                   cells_t cells[], 
-                   nets_t nets[], 
-                   corn_t cnets[], 
+                   cells_t cells[],
+                   nets_t nets[],
+                   corn_t cnets[],
                    cells_info_t cells_info[])
 {
     for (int cell_no = 0; cell_no < nocells; cell_no++) {
 
-        /* init cells-info */
+        /* initialize cells_info */
         cells_info[cell_no].locked = False;
         cells_info[cell_no].mcount = 0;
 
@@ -102,7 +105,7 @@ void compute_gains(int nocells,
                             &other_cell, &other_part_no, &net_weight,
                             tchrom, nets);
             cells_info[cell_no].mgain[other_part_no] += net_weight;
-            net_ptr++;   /* next net */
+            net_ptr++;  
 
         }   /* for j */
 
@@ -111,7 +114,7 @@ void compute_gains(int nocells,
 
 /* free all allocated nodes */
 void free_nodes(int noparts, 
-                int bucketsize, 
+                int bucketsize,
                 partb_t partb[][noparts - 1])
 {
     /* delete nodes connected to partb */
@@ -138,7 +141,7 @@ void free_nodes(int noparts,
 /* count number of bucket nodes */
 void number_nodes(int noparts, 
                   int bucketsize, 
-                  int *npartb, 
+                  int *npartb,
                   partb_t partb[][noparts - 1])
 {
     *npartb = 0;
@@ -155,11 +158,11 @@ void number_nodes(int noparts,
             }   /* for k */
         }   /* for j */
     }   /* for i */
-}   /* Number_nodes */
+}   /* number_nodes */
 
 /* find set of cells to be actually moved */
-int find_move_set(mcells_t mcells[], 
-                  int msize, 
+int find_move_set(mcells_t mcells[],
+                  int msize,
                   int *max_mcells_inx)
 {
     int max_gain_sum = 0;
@@ -177,12 +180,12 @@ int find_move_set(mcells_t mcells[],
 }   /* find_move_set */
 
 /* move cells actually */
-int move_cells(int wflag, 
-               mcells_t mcells[], 
+int move_cells(int wflag,
+               mcells_t mcells[],
                int max_mcells_inx, 
                int cutsize, 
-               int *glob_inx, 
-               ind_t *ind, 
+               int *glob_inx,
+               ind_t *ind,
                cells_t cells[])
 {
     /* used only under wflag == True */
@@ -216,8 +219,8 @@ int move_cells(int wflag,
 
 /* finds cut size of a given partition - used for control */
 int find_cut_size(int nonets, 
-                  int totsize, 
-                  nets_t nets[], 
+                  int totsize,
+                  nets_t nets[],
                   ind_t *ind)
 {
     ind->incost = 0;
