@@ -36,7 +36,7 @@ void create_buckets(int nocells,
                 int gain_inx = map_gain(mov_gain, max_gain);
 
                 /* create a partb node */
-                create_partb_node(noparts, cell_no, part_no, mapped_part_no, 
+                create_partb_node(noparts, cell_no, part_no, mapped_part_no,
                                   gain_inx, partb, cells_info);
 
             }   /* if mapped_part_no not equal part_no */
@@ -210,27 +210,28 @@ void create_partb_nodes_of_cell(int noparts,
                                 partb_t partb[][noparts - 1],
                                 cells_info_t cells_info[])
 {
-    if (cell_no != -1) {
+    if (cell_no == -1) {
+        return;
+    }
 
-        /* for each possible move direction */
-        for (int mov_part_no = 0; mov_part_no < noparts; mov_part_no++) {
+    /* for each possible move direction */
+    for (int mov_part_no = 0; mov_part_no < noparts; mov_part_no++) {
 
-            if (mov_part_no != part_no) {  /* part-no is home_part of cell_no */
+        if (mov_part_no != part_no) {  /* part-no is home_part of cell_no */
 
-                int mov_gain = calculate_gain(cell_no, part_no, mov_part_no, cells_info);
+            int mov_gain = calculate_gain(cell_no, part_no, mov_part_no, cells_info);
 
-                /* find mapped_after calculating gain & max */
-                int mapped_part_no = map_part_no(mov_part_no, part_no);
-                int gain_inx = map_gain(mov_gain, max_gain);
+            /* find mapped_after calculating gain & max */
+            int mapped_part_no = map_part_no(mov_part_no, part_no);
+            int gain_inx = map_gain(mov_gain, max_gain);
 
-                /* create a partb node */
-                create_partb_node(noparts, cell_no, part_no, mapped_part_no, 
-                                  gain_inx, partb, cells_info);
+            /* create a partb node */
+            create_partb_node(noparts, cell_no, part_no, mapped_part_no,
+                              gain_inx, partb, cells_info);
 
-            }   /* if mapped_part_no not equal part_no */
-
-        }   /* for mapped_part_no */
-    }   /* if */
+        }   /* if mapped_part_no not equal part_no */
+        
+    }   /* for mapped_part_no */
 }   /* create_partb_nodes_of_cell */
 
 /* EOF */
