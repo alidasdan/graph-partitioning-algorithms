@@ -1,6 +1,7 @@
 
 /* COPYRIGHT C 1991- Ali Dasdan */ 
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
@@ -23,8 +24,9 @@
 
 /* definitions */
 int nocells;           /* number of cells */
-int noparts;           /* number of partitions */
 int nonets;            /* number of nets */
+int nopins;            /* number of pins */
+int noparts;           /* number of partitions */
 int totsize;           /* total net weight of the partition */
 int totcellsize;       /* total cell weight of the partition */
 int cutsize;           /* cutsize of the partition */
@@ -57,27 +59,43 @@ int main(int argc, char *argv[])
     printf("SEED = %ld fname = %s\n", seed, fname);
 
     read_graph_size(fname, &nocells, &nonets);
+    nopins = 2 * nonets;
 
-    /* alloc memory (statically if possible) */
-    cells_t            cells[nocells];
-    nets_t             nets[nonets];
-    corn_t             cnets[2 * nonets];
-    ind_t              pop[MAX_POP];             /* population */
-    for (int i = 0; i < MAX_POP; i++) {
-        pop[i].chrom = (allele *) calloc(nocells, sizeof(allele));
-        pop[i].parts = (parts_t *) calloc(noparts, sizeof(parts_t));
-    }
-    partb_t            partb[noparts][noparts - 1];  /* partition buckets */
-    cells_info_t       cells_info[nocells];
+    /* alloc memory for all data structures */
+    cells_t *cells = (cells_t *) calloc(nocells, sizeof(cells_t));
+    assert(cells != NULL);
+    cells_info_t *cells_info = (cells_info_t *) calloc(nocells, sizeof(cells_info_t));
+    assert(cells_info != NULL);
     for (int i = 0; i < nocells; i++) {
         cells_info[i].mgain = (int *) calloc(noparts, sizeof(int));
         cells_info[i].partb_ptr = (bnode_ptr_t *) calloc(noparts - 1, sizeof(bnode_ptr_t));
         cells_info[i].partb_gain_inx = (int *) calloc(noparts - 1, sizeof(int));
     }
-    /* additional information for cells */
-    selected_cell_t    scell[1];     /* selected cell type */
-    mcells_t           mcells[nocells];  /* array of cells moved */
-    parts_info_t       parts_info[noparts]; 
+
+    nets_t *nets = (nets_t *) calloc(nonets, sizeof(nets_t));
+    assert(nets != NULL);
+
+    /* cells of nets */
+    corn_t *cnets = (corn_t *) calloc(nopins, sizeof(corn_t));
+    assert(cnets != NULL);
+
+    /* partition buckets */
+    partb_t partb[noparts][noparts - 1];  
+    parts_info_t parts_info[noparts]; 
+
+    /* population (w/ one individual!) */
+    ind_t pop[MAX_POP];             
+    for (int i = 0; i < MAX_POP; i++) {
+        pop[i].chrom = (allele *) calloc(nocells, sizeof(allele));
+        pop[i].parts = (parts_t *) calloc(noparts, sizeof(parts_t));
+    }
+
+    /* selected cell */
+    selected_cell_t scell[1];     
+
+    /* moved cells */
+    mcells_t *mcells = (mcells_t *) calloc(nocells, sizeof(mcells_t));
+    assert(mcells != NULL);
  
     read_graph(fname, nocells, nonets, noparts, &totsize, &totcellsize,
                &max_density, &max_cweight, &max_nweight,
@@ -183,21 +201,31 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    /* free memory */
-    for (int i = 0; i < MAX_POP; i++) {
-        cfree(pop[i].chrom);
-        cfree(pop[i].parts);
-    }
+    /* free memory for all data structures */
+    cfree(cells);
     for (int i = 0; i < nocells; i++) {
         cfree(cells_info[i].mgain);
         cfree(cells_info[i].partb_ptr);
         cfree(cells_info[i].partb_gain_inx);
     }
+    cfree(cells_info);
+
+    cfree(nets);
+
+    cfree(cnets);
+
     for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < noparts - 1; ++j) {
             cfree(partb[i][j].bnode_ptr);
         }
     }
+
+    for (int i = 0; i < MAX_POP; i++) {
+        cfree(pop[i].chrom);
+        cfree(pop[i].parts);
+    }
+
+    cfree(mcells);
 
     return (0);
 }   /* main-fms */
