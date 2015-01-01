@@ -87,9 +87,25 @@ will be generated:
 
 Type the name of one of the executables in your command line to get
 the usage information. At minimum, each executable requires the input
-graph and the number of parts to partition the graph. PlM and PFM
-require additional parameters to create different versions of them,
-which trade off runtime for partition quality.
+hypergraph and the number of parts to partition the hypergraph. PLM
+and PFM require additional parameters to create different versions of
+them, which trade off runtime for partition quality.
+
+For example, a run of FMS (in 'ad_fms.x') to partition the input graph
+'p9' into two parts will produce this output:
+
+```
+> ad_fms.x input/p9 2 123456
+SEED = 123456 fname = input/p9
+pass_no = 7 Final cutsize = 85 Check cutsize = 85
+```
+
+This output shows that FMS took 7 passes over the cells of the input
+hypergraph 'hp9' when started with a seed of 123456 (which is needed
+to make the results repeatable). FMS found a cutsize of 85, which is
+correct as FMS and the other programs will check every cutsize they
+report for correctness. That is, each of the executables are self
+validating.
 
 ## HOW TO TEST
 
