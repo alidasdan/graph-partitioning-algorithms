@@ -76,14 +76,14 @@ below.
 At the top level, you see two directories: 'src' and 'input'. 'src'
 contains all the source files and 'input' contains the input graphs
 used for testing the executables. Under 'src', there is one directory,
-called 'shared', for the shared source files as well as one directory
+called 'share', for the shared source files as well as one directory
 for each algorithm: 'fms', 'plm', and 'pfm'.
 
 ## HOW TO BUILD
 
 Under 'src', type 'make' (or 'gmake') to build each executable under
 its own directory. The executables are all have .x extension:
-ad_fms.x, ad_plm.x, ad_pfm.x.
+ad_fms.x, ad_plm.x, and ad_pfm.x.
 
 # HOW TO RUN
 
