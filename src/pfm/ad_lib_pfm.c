@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "ad_defs.h"
-#include "ad_bucketio.h"
-#include "ad_lib.h"
+#include "../share/ad_defs.h"
+#include "../share/ad_bucketio.h"
+#include "../share/ad_lib.h"
 #include "ad_lib_pfm.h"
 
 /*

@@ -1,12 +1,10 @@
 
 /* COPYRIGHT C 1991- Ali Dasdan */ 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "ad_defs.h"
-#include "ad_bucketio.h"
-#include "ad_lib.h"
-#include "ad_lib_plm.h"
+#include "../share/ad_defs.h"
+#include "../share/ad_bucketio.h"
+#include "../share/ad_lib.h"
+#include "ad_lib_fms.h"
 
 /* map a given mov_gain into index to a bucket array */
 int map_gain(int mov_gain, int max_gain)
@@ -17,8 +15,8 @@ int map_gain(int mov_gain, int max_gain)
 /* fill all bucket arrays */
 void create_buckets(int nocells, 
                     int noparts, 
-                    int max_gain, 
-                    allele chrom[], 
+                    int max_gain,
+                    allele chrom[],
                     partb_t partb[][noparts - 1],
                     cells_info_t cells_info[])
 {
@@ -30,6 +28,7 @@ void create_buckets(int nocells,
         /* for each possible move direction */
         for (int mov_part_no = 0; mov_part_no < noparts; mov_part_no++) {
             if (mov_part_no != part_no) {
+
                 int mov_gain = calculate_gain(cell_no, part_no, mov_part_no, cells_info);
 
                 /* find mapped_after calculating gain & max */
@@ -37,12 +36,11 @@ void create_buckets(int nocells,
                 int gain_inx = map_gain(mov_gain, max_gain);
 
                 /* create a partb node */
-                create_partb_node(noparts, cell_no, part_no, mapped_part_no, 
+                create_partb_node(noparts, cell_no, part_no, mapped_part_no,
                                   gain_inx, partb, cells_info);
 
             }   /* if mapped_part_no not equal part_no */
         }   /* for mapped_part_no */
-
     }   /* for part_no */
 }   /* create_buckets */
 
@@ -67,21 +65,19 @@ int select_cell(int noparts,
                 int tpmax_size = parts_info[to].pmax_size;
                 int tpcurr_size = parts_info[to].pcurr_size;
                 if ((from != to) && (tpcurr_size < tpmax_size)) {
-                    int dest_part = map_part_no (to, from);
+                    int dest_part = map_part_no(to, from);
                     int max_inx = partb[from][dest_part].max_inx;
-                    if (max_inx < 0) {
-                        printf("Error: max_inx cannot be negative.\n");
-                        exit(1);
+                    if (max_inx > 0) {
+                        int cell_no = partb[from][dest_part].bnode_ptr[max_inx]->cell_no;
+                        if ((max_mov_value < max_inx) &&
+                            (fpcurr_size >= (fpmin_size + cells[cell_no].cweight)) &&
+                            ((tpcurr_size + cells[cell_no].cweight) <= tpmax_size)) {
+                            max_mov_value = max_inx;
+                            scell[0].mov_cell_no = cell_no;
+                            scell[0].from_part = from;
+                            scell[0].to_part = to;
+                        }   /* if many conditions */
                     }   /* if */
-                    int cell_no = partb[from][dest_part].bnode_ptr[max_inx]->cell_no;
-                    if ((max_mov_value < max_inx) &&
-                        (fpcurr_size >= (fpmin_size + cells[cell_no].cweight)) &&
-                        ((tpcurr_size + cells[cell_no].cweight) <= tpmax_size)) {
-                        max_mov_value = max_inx;
-                        scell[0].mov_cell_no = cell_no;
-                        scell[0].from_part = from;
-                        scell[0].to_part = to;
-                    }   /* if many conditions */
                 }   /* if */
             }   /* for to */
         }   /* if curr > min */
@@ -100,7 +96,7 @@ int select_cell(int noparts,
         parts_info[scell[0].to_part].pcurr_size +=
             cells[scell[0].mov_cell_no].cweight;
 
-    }  else {
+    } else {
 
         move_possible = False;
         max_mov_value = -1;
@@ -133,13 +129,11 @@ int select_cell(int noparts,
 /* move selected cell, and save the move in a file */
 void move_cell(mcells_t mcells[],
                int msize,
-               selected_cell_t scell[],
-               allele tchrom[])
+               selected_cell_t scell[])
 {
-    tchrom[scell[0].mov_cell_no] = scell[0].to_part;
-    mcells[msize].cell_no = scell[0].mov_cell_no;
-    mcells[msize].from = scell[0].from_part;
-    mcells[msize].to = scell[0].to_part;
+    mcells[msize].cell_no = scell[0].mov_cell_no; 
+    mcells[msize].from = scell[0].from_part; 
+    mcells[msize].to = scell[0].to_part; 
     mcells[msize].mgain = scell[0].mov_gain;
 }   /* move_cell */
 
@@ -178,7 +172,7 @@ void update_gains(int noparts,
 
                 for (int j = 0; j < 2; j++) {
                     int dest_part = scell[0].from_part;
-                    if (j == 1) { 
+                    if (j == 1) {
                         dest_part = scell[0].to_part;
                     }
                     int mov_gain = calculate_gain(other_cell, other_part_no,
@@ -186,8 +180,8 @@ void update_gains(int noparts,
                     int gain_inx = map_gain(mov_gain, max_gain);
                     int mapped_part_no = map_part_no(dest_part, other_part_no);
                     bnode_ptr_t tnode_ptr = delete_partb_node(False, mapped_part_no,
-                                                                 &partb[other_part_no][mapped_part_no],
-                                                                 &cells_info[other_cell]);
+                                                              &partb[other_part_no][mapped_part_no],
+                                                              &cells_info[other_cell]);
                     insert_partb_node(tnode_ptr, mapped_part_no, gain_inx,
                                       &partb[other_part_no][mapped_part_no],
                                       &cells_info[other_cell]);
@@ -232,11 +226,11 @@ void create_partb_nodes_of_cell(int noparts,
             int gain_inx = map_gain(mov_gain, max_gain);
 
             /* create a partb node */
-            create_partb_node(noparts, cell_no, part_no, mapped_part_no, 
+            create_partb_node(noparts, cell_no, part_no, mapped_part_no,
                               gain_inx, partb, cells_info);
 
         }   /* if mapped_part_no not equal part_no */
-
+        
     }   /* for mapped_part_no */
 }   /* create_partb_nodes_of_cell */
 

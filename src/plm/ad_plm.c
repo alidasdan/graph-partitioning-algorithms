@@ -4,22 +4,24 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include <malloc.h>
-#include "ad_defs.h"
-#include "ad_random.h"
-#include "ad_fileio.h"
-#include "ad_readinput.h"
-#include "ad_partition.h"
-#include "ad_print.h"
-#include "ad_bucketio.h"
-#include "ad_lib.h"
-#include "ad_lib_fms.h"
+#include "../share/ad_defs.h"
+#include "../share/ad_random.h"
+#include "../share/ad_fileio.h"
+#include "../share/ad_readinput.h"
+#include "../share/ad_partition.h"
+#include "../share/ad_print.h"
+#include "../share/ad_bucketio.h"
+#include "../share/ad_lib.h"
+#include "ad_lib_plm.h"
 
-/* FOR SANCHIS' VERSION OF MULTI-WAY PARTITIONING */
-/* Also mentioned as the SN algorithm */
+/* PARTITIONING BY LOCKED MOVES */
 /* Direct multi-way partitioning.
    Locking is used.
    Cells are moved wrt their gains.
+   Prefix sum is computed at the end of the outher loop as in 1st heuristic.
+   Run until a local optimum is found.
 */
 
 /* definitions */
@@ -38,28 +40,47 @@ int bucketsize;        /* max size of a bucket array */
 int msize;             /* index to mcells */
 
 int main(int argc, char *argv[])
-{
-    if (argc < 3) {
-        printf("\nUsage: %s InputFileName NoParts [Seed]\n", argv[0]);
+{    
+    if (argc < 5) {
+        printf("\nUsage: %s InputFileName NoParts InCount OutCount [Seed]\n", argv[0]);
+	printf("\t#cells moved per phase = incount * nocells / 4\n");
+	printf("\t\tUse 1, 2, 3, or 4 for incount.\n");
+	printf("\t#cells moved per pass = nocells if outcount = 1,\n");
+	printf("\t#cells moved per pass = nocells * noparts if outcount = 2, and\n");
+	printf("\t#cells moved per pass = nocells * noparts * noparts if outcount = 3.\n");
         exit(1);
     }  /* if */
 
     char fname[STR_SIZE];
     sprintf(fname, "%s", argv[1]);
 
-    noparts = atoi(argv[2]);                         
+    noparts = atoi(argv[2]);
+
+    int incount = atoi(argv[3]);
+    int outcount = atoi(argv[4]);
 
     long seed;
-    if (argc > 3) {
-        seed = (long) atoi(argv[3]);
+    if (argc > 5) {
+        seed = (long) atoi(argv[5]);
     } else {
         seed = (long) -1;
     }
-    seed = randomize((long) seed);
+    seed = randomize((long)  seed);
     printf("SEED = %ld fname = %s\n", seed, fname);
 
     read_graph_size(fname, &nocells, &nonets);
     nopins = 2 * nonets;
+
+    /* determine what in- & out-count imply */
+    int max_moved_cells = incount * nocells / 4;
+    switch (outcount) {
+    case 1 : outcount = nocells; break;
+    case 2 : outcount = nocells * noparts; break;
+    case 3 : outcount = nocells * noparts * noparts; break;
+    default : break;
+    }
+    /* max_noiter = outcount / max_moved_cells;*/ /* do that many iterations */
+    int max_noiter = outcount;
 
     /* alloc memory for all data structures */
     cells_t *cells = (cells_t *) calloc(nocells, sizeof(cells_t));
@@ -94,14 +115,18 @@ int main(int argc, char *argv[])
     selected_cell_t scell[1];     
 
     /* moved cells */
-    mcells_t *mcells = (mcells_t *) calloc(nocells, sizeof(mcells_t));
+    mcells_t *mcells = (mcells_t *) calloc(2 * max_noiter, sizeof(mcells_t));
     assert(mcells != NULL);
- 
+
+    /* temp chrom */
+    allele *tchrom = (allele *) calloc(nocells, sizeof(allele));
+    assert(tchrom != NULL);
+  
     read_graph(fname, nocells, nonets, noparts, &totsize, &totcellsize,
                &max_density, &max_cweight, &max_nweight,
                cells, nets, cnets);
 
-    max_gain = max_density * max_nweight; 
+    max_gain = max_density * max_nweight;
     bucketsize = 2 * max_gain + 1;
 
     /* alloc memory (statically if possible) */
@@ -130,41 +155,53 @@ int main(int argc, char *argv[])
 #endif
 
     int gain_sum;
-    int no_iter = 0;
     int glob_inx = 0;
+    int pass_no = 0;
     do {
 
         copy_partition(noparts, parts_info, &pop[0]);
 
-        compute_gains(nocells, noparts, pop[0].chrom, 
-                      cells, nets, cnets, cells_info);
-
-        create_buckets(nocells, noparts, max_gain, pop[0].chrom, 
-                       partb, cells_info);
+        for (int i = 0; i < nocells; i++) {
+            tchrom[i] = pop[0].chrom[i];
+        }
 
         msize = 0;
 
-        int nlocked = 0;
-        do {
+        int noiter = 0;
+        while (noiter < max_noiter) {
 
-            int move_possible = select_cell(noparts, scell, parts_info, cells, 
-                                            partb, cells_info);
+            compute_gains(nocells, noparts, tchrom, 
+                          cells, nets, cnets, cells_info);
 
-            delete_partb_nodes_of_cell(noparts, scell[0].mov_cell_no, 
-                                       scell[0].from_part, partb, cells_info);
+            create_buckets(nocells, noparts, max_gain, tchrom, partb, cells_info);
 
-            /* lock cell */
-            cells_info[scell[0].mov_cell_no].locked = True;
-            if (move_possible == True) {
-                move_cell(mcells, msize, scell);  
-                msize++;
-                update_gains(noparts, max_gain, scell, pop[0].chrom,
-                             cells, nets, cnets,
-                             partb, cells_info);
-            }   /* if */
-            nlocked++;
+            /* max_moved_cells = nocells / 2; */
+            int nlocked = 0;
+            do {
 
-        } while (nlocked < nocells); 
+                int move_possible = select_cell(noparts, scell, parts_info, cells, 
+                                                partb, cells_info);
+
+                delete_partb_nodes_of_cell(noparts, scell[0].mov_cell_no, 
+                                           scell[0].from_part, partb, cells_info);
+
+                /* lock cell */
+                cells_info[scell[0].mov_cell_no].locked = True;
+                if (move_possible == True) {
+                    move_cell(mcells, msize, scell, tchrom);  
+                    msize++;
+                    update_gains(noparts, max_gain, scell, tchrom,
+                                 cells, nets, cnets,
+                                 partb, cells_info);
+                }   /* if */
+                nlocked++;
+
+                noiter++;
+            } while ((nlocked < max_moved_cells) && (noiter < max_noiter)); 
+
+            free_nodes(noparts, bucketsize, partb);
+
+        }   /* while */
 
         int max_mcells_inx;
         gain_sum = find_move_set(mcells, msize, &max_mcells_inx);
@@ -173,22 +210,21 @@ int main(int argc, char *argv[])
         printf("gain_sum=%d max_mcells_inx=%d msize = %d\n",
                gain_sum, max_mcells_inx, msize);
 #endif
-
         if (gain_sum > 0) {
-            int cut_gain = move_cells(False, mcells, max_mcells_inx, cutsize,
-                                      &glob_inx, &pop[0], cells);
+            int cut_gain = move_cells(False, mcells, max_mcells_inx, cutsize, &glob_inx, 
+                                      &pop[0], cells);
             cutsize -= cut_gain;
         }   /* if */
-        no_iter++;
+        pass_no++;
 
 #ifdef DEBUG
-        printf("pass_no = %d Final cutsize = %d Check cutsize = %d\n", no_iter,
+        printf("pass_no = %d Final cutsize = %d Check cutsize = %d\n", pass_no,
                cutsize, find_cut_size(nonets, totsize, nets, &pop[0]));
 #endif
 
-    } while ((gain_sum > 0) && (cutsize > 0) && (no_iter < NO_ITERATIONS));
+    } while ((gain_sum > 0) && (cutsize > 0));
 
-    printf("pass_no = %d Final cutsize = %d Check cutsize = %d\n", no_iter,
+    printf("pass_no = %d Final cutsize = %d Check cutsize = %d\n", pass_no,
            cutsize, find_cut_size(nonets, totsize, nets, &pop[0]));
 
     free_nodes(noparts, bucketsize, partb);
@@ -227,7 +263,9 @@ int main(int argc, char *argv[])
 
     cfree(mcells);
 
+    cfree(tchrom);
+
     return (0);
-}   /* main-fms */
+}   /* main-plm */
 
 /* EOF */

@@ -3,7 +3,7 @@
 
 /* COPYRIGHT C 1991- Ali Dasdan */ 
 
-#include "ad_defs.h"
+#include "../share/ad_defs.h"
 
 /* map a given mov_gain into index to a bucket array */
 int map_gain(int mov_gain, int max_gain);
