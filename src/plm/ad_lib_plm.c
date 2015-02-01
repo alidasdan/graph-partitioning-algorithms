@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../share/ad_defs.h"
-#include "../share/ad_bucketio.h"
-#include "../share/ad_lib.h"
+#include "ad_defs.h"
+#include "ad_bucketio.h"
+#include "ad_lib.h"
 #include "ad_lib_plm.h"
 
 /* map a given mov_gain into index to a bucket array */
