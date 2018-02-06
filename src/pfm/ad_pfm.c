@@ -6,7 +6,7 @@
 #include <string.h>
 #include <strings.h>
 #include <math.h>
-#include <malloc.h>
+#include <malloc/malloc.h>
 #include "ad_defs.h"
 #include "ad_random.h"
 #include "ad_fileio.h"
@@ -238,34 +238,34 @@ int main(int argc, char *argv[])
 #endif
  
     /* free memory for all data structures */
-    cfree(cells);
+    free(cells);
     for (int i = 0; i < nocells; i++) {
-        cfree(cells_info[i].mgain);
-        cfree(cells_info[i].partb_ptr);
-        cfree(cells_info[i].partb_gain_inx);
+        free(cells_info[i].mgain);
+        free(cells_info[i].partb_ptr);
+        free(cells_info[i].partb_gain_inx);
     }
-    cfree(cells_info);
+    free(cells_info);
 
-    cfree(nets);
+    free(nets);
 
-    cfree(cnets);
+    free(cnets);
 
     for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < noparts - 1; ++j) {
-            cfree(partb[i][j].bnode_ptr);
+            free(partb[i][j].bnode_ptr);
         }
     }
 
     for (int i = 0; i < MAX_POP; i++) {
-        cfree(pop[i].chrom);
-        cfree(pop[i].parts);
+        free(pop[i].chrom);
+        free(pop[i].parts);
     }
 
-    cfree(mcells);
+    free(mcells);
 
-    cfree(tchrom);
+    free(tchrom);
 
-    cfree(eval);
+    free(eval);
 
     return (0);
 }   /* main-pfm */

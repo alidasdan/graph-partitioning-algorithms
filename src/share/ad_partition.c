@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
+#include <malloc/malloc.h>
 #include <errno.h>
 #include "ad_random.h"
 #include "ad_fileio.h"
@@ -71,7 +71,7 @@ int create_partition(int nocells,
         ind->parts[i].pmin_size = (int) (part_size * (1.0 - off_ratio) - 1.0);
     }   /* for i */ 
 
-    cfree(tparts);
+    free(tparts);
 
     return max_size;
 }   /* create_partition */
