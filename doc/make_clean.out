@@ -1,0 +1,8 @@
+make -C share clean
+rm -f *.o *~ core *.x
+make -C fms clean
+rm -f *.o *~ core *.x
+make -C plm clean
+rm -f *.o *~ core *.x
+make -C pfm clean
+rm -f *.o *~ core *.x

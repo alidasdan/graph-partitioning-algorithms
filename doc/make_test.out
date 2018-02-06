@@ -1,0 +1,27 @@
+make -C fms test
+./utest.sh
+Passed: program=ad_fms p1 2: cutsize=1 target=1
+Passed: program=ad_fms p9 2: cutsize=85 target=85
+Passed: program=ad_fms p9 3: cutsize=201 target=201
+make -C plm test
+./utest.sh
+Passed: program=ad_plm p1 2 1 1: cutsize=1 target=1
+Passed: program=ad_plm p1 2 2 1: cutsize=1 target=1
+Passed: program=ad_plm p1 2 1 2: cutsize=1 target=1
+Passed: program=ad_plm p9 2 1 1: cutsize=26 target=26
+Passed: program=ad_plm p9 3 1 1: cutsize=157 target=157
+Passed: program=ad_plm p9 2 2 1: cutsize=35 target=35
+Passed: program=ad_plm p9 3 2 1: cutsize=163 target=163
+Passed: program=ad_plm p9 2 1 2: cutsize=27 target=27
+Passed: program=ad_plm p9 3 1 2: cutsize=175 target=175
+make -C pfm test
+./utest.sh
+Passed: program=ad_pfm p1 2 1 1: cutsize=1 target=1
+Passed: program=ad_pfm p1 2 2 1: cutsize=1 target=1
+Passed: program=ad_pfm p1 2 3 1: cutsize=1 target=1
+Passed: program=ad_pfm p9 2 1 1: cutsize=75 target=75
+Passed: program=ad_pfm p9 3 1 1: cutsize=69 target=69
+Passed: program=ad_pfm p9 2 2 1: cutsize=53 target=53
+Passed: program=ad_pfm p9 3 2 1: cutsize=75 target=75
+Passed: program=ad_pfm p9 2 3 2: cutsize=32 target=32
+Passed: program=ad_pfm p9 3 3 2: cutsize=58 target=58

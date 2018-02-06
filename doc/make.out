@@ -1,0 +1,17 @@
+make -C share all
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -c -o ad_bucketio.o ad_bucketio.c
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -c -o ad_fileio.o ad_fileio.c
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -c -o ad_lib.o ad_lib.c
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -c -o ad_partition.o ad_partition.c
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -c -o ad_print.o ad_print.c
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -c -o ad_random.o ad_random.c
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -c -o ad_readinput.o ad_readinput.c
+make -C fms all
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -I../share -c -o ad_lib_fms.o ad_lib_fms.c
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -I../share -o ad_fms.x ad_fms.c ../share/ad_bucketio.o ../share/ad_fileio.o ../share/ad_lib.o ../share/ad_partition.o ../share/ad_print.o ../share/ad_random.o ../share/ad_readinput.o ad_lib_fms.o
+make -C plm all
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -I../share -c -o ad_lib_plm.o ad_lib_plm.c
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -I../share -o ad_plm.x ad_plm.c ../share/ad_bucketio.o ../share/ad_fileio.o ../share/ad_lib.o ../share/ad_partition.o ../share/ad_print.o ../share/ad_random.o ../share/ad_readinput.o ad_lib_plm.o
+make -C pfm all
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -I../share -c -o ad_lib_pfm.o ad_lib_pfm.c -lm
+gcc -O3 -std=c99 -Dlint -D__lint -Wall -Winline -Wno-deprecated -Wno-strict-overflow -I../share -o ad_pfm.x ad_pfm.c ../share/ad_bucketio.o ../share/ad_fileio.o ../share/ad_lib.o ../share/ad_partition.o ../share/ad_print.o ../share/ad_random.o ../share/ad_readinput.o ad_lib_pfm.o -lm
