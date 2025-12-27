@@ -91,8 +91,7 @@ void select_cell(int noparts,
                     int dest_part = map_part_no(to, from);
                     int max_inx = partb[from][dest_part].max_inx;
                     if (max_inx < 0) {
-                        printf("Error: max_inx cannot be negative.\n");
-                        exit(1);
+                        continue;  /* Skip empty buckets */
                     }   /* if */
                     int cell_no = partb[from][dest_part].bnode_ptr[max_inx]->cell_no;
                     if ((max_mov_value < max_inx) &&
@@ -165,12 +164,18 @@ void update_gains(int bucketsize,
                         &other_cell, &other_part_no, &net_weight,
                         tchrom, nets);
 
+        /* If other_cell is the moved cell itself (self-loop), use the old partition
+         * because tchrom has already been updated but buckets haven't */
+        if (other_cell == scell[0].mov_cell_no) {
+            other_part_no = scell[0].from_part;
+        }
+
         /* update costs */
         cells_info[other_cell].mgain[scell[0].from_part] -= net_weight;
         cells_info[other_cell].mgain[scell[0].to_part] += net_weight;
 
         /* update gains */
-        if ((scell[0].from_part != other_part_no) && 
+        if ((scell[0].from_part != other_part_no) &&
             (scell[0].to_part != other_part_no)) {
 
             for (int j = 0; j < 2; j++) {
@@ -211,6 +216,12 @@ void fill_eval(int max_gain,
                float K,
                eval_t eval[])
 {
+    /* Handle degenerate case where max_gain is 0 */
+    if (max_gain == 0) {
+        eval[0].val = 1.0;  /* exp(0) = 1.0 */
+        return;
+    }
+
     for (int i = 0; i <= (2 * max_gain); i++)
         eval[i].val = (float) exp((double) (-K * (max_gain - i)));
 }   /* fill_eval */
@@ -255,6 +266,12 @@ void calculate_scale(int nocells,
                      int max_gain,
                      float *K)
 {
+    /* Handle degenerate case where max_gain is 0 */
+    if (max_gain == 0) {
+        *K = 0.0;
+        return;
+    }
+
     double ratio = log((double) ((1.0 - EPSILON) / EPSILON));
     *K = (1.0 / max_gain) * (float) ratio;
     double scale = (double) pow(ratio, (double) 1.0 / max_gain);

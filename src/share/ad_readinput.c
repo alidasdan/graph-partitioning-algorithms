@@ -96,7 +96,7 @@ void read_graph(char fname[],
     init_cells(nocells, cells);
 
     /* read nets */
-    *max_nweight = -1;
+    *max_nweight = 0;  /* default to 0 for graphs with no edges */
     *totsize = 0;
     for (int i = 0; i < nonets; i++) {
         int ignore;  /* this is the number of pins on this net; it
@@ -117,8 +117,8 @@ void read_graph(char fname[],
     }   /* for */
 
     /* set netlist pointers */
-    *max_density = -1;
-    *max_cweight = -1;
+    *max_density = 0;   /* default to 0 for isolated nodes */
+    *max_cweight = 0;   /* default to 0 */
     *totcellsize = 0;
     int part_sum = 0;
     for (int i = 0; i < nocells; i++) {

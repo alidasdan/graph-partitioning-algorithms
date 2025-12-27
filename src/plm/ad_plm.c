@@ -193,16 +193,17 @@ int main(int argc, char *argv[])
             int nlocked = 0;
             do {
 
-                int move_possible = select_cell(noparts, scell, parts_info, cells, 
+                int move_possible = select_cell(noparts, scell, parts_info, cells,
                                                 partb, cells_info);
 
-                delete_partb_nodes_of_cell(noparts, scell[0].mov_cell_no, 
-                                           scell[0].from_part, partb, cells_info);
-
-                /* lock cell */
-                cells_info[scell[0].mov_cell_no].locked = True;
                 if (move_possible == True) {
-                    move_cell(mcells, msize, scell, tchrom);  
+                    delete_partb_nodes_of_cell(noparts, scell[0].mov_cell_no,
+                                               scell[0].from_part, partb, cells_info);
+
+                    /* lock cell */
+                    cells_info[scell[0].mov_cell_no].locked = True;
+
+                    move_cell(mcells, msize, scell, tchrom);
                     msize++;
                     update_gains(noparts, max_gain, scell, tchrom,
                                  cells, nets, cnets,

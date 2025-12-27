@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
     eval_t *eval = (eval_t *) calloc(2 * max_gain + 1, sizeof(eval_t));
     float K;
     calculate_scale(nocells, noparts, max_gain, &K);
-    fill_eval(max_gain, K, eval); 
+    fill_eval(max_gain, K, eval);
 
     create_partition(nocells, noparts, totcellsize, cells, &pop[0]);
 
@@ -218,12 +218,12 @@ int main(int argc, char *argv[])
         gain_sum = find_move_set(mcells, msize, &max_mcells_inx);
 
 #ifdef DEBUG
-        printf("gain_sum=%d max_mcells_inx=%d msize = %d\n", 
+        printf("gain_sum=%d max_mcells_inx=%d msize = %d\n",
                gain_sum, max_mcells_inx, msize);
 #endif
 
         if (gain_sum > 0) {
-            int cut_gain = move_cells(False, mcells, max_mcells_inx, 
+            int cut_gain = move_cells(False, mcells, max_mcells_inx,
                                       cutsize, &glob_inx, &pop[0], cells);
             cutsize -= cut_gain;
         }   /* if */
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
         pass_no++;
 
 #ifdef DEBUG
-        printf("pass_no = %d Final cutsize = %d Check cutsize = %d\n", pass_no, 
+        printf("pass_no = %d Final cutsize = %d Check cutsize = %d\n", pass_no,
                cutsize, find_cut_size(nonets, totsize, nets, &pop[0]));
 #endif
 
