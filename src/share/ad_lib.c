@@ -26,9 +26,9 @@ void find_other_cell(int net_no,
 }   /* find_other_cell */
  
 /* initialize all bucket indices and pointers */
-void init_buckets(int noparts, 
+void init_buckets(int noparts,
                   int bucketsize,
-                  partb_t partb[][noparts - 1])
+                  partb_t **partb)
 {
     /* init partition bucket indices */
     for (int i = 0; i < noparts; i++) {
@@ -113,9 +113,9 @@ void compute_gains(int nocells,
 }   /* compute_gains */
 
 /* free all allocated nodes */
-void free_nodes(int noparts, 
+void free_nodes(int noparts,
                 int bucketsize,
-                partb_t partb[][noparts - 1])
+                partb_t **partb)
 {
     /* delete nodes connected to partb */
     for (int i = 0; i < noparts; i++) {
@@ -139,10 +139,10 @@ void free_nodes(int noparts,
 }   /* free_nodes */
 
 /* count number of bucket nodes */
-void number_nodes(int noparts, 
-                  int bucketsize, 
+void number_nodes(int noparts,
+                  int bucketsize,
                   int *npartb,
-                  partb_t partb[][noparts - 1])
+                  partb_t **partb)
 {
     *npartb = 0;
 

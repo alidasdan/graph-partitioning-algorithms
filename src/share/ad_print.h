@@ -21,10 +21,10 @@ void print_parts(int nocells,
                  ind_t *ind, 
                  allele tchrom[]);
 
-void print_parts_info(int nocells, 
-                      int noparts, 
-                      allele chrom[], 
-                      parts_info_t parts_info[]);
+void print_parts_info(int nocells,
+                      int noparts,
+                      allele chrom[],
+                      parts_info_t *parts_info);
 
 void print_cells(int nocells, 
                  cells_t cells[], 
@@ -40,10 +40,10 @@ void print_cells_info(int nocells,
                       int noparts,
                       cells_info_t cells_info[]);
 
-void print_inx(int noparts, partb_t partb[][noparts - 1]);
+void print_inx(int noparts, partb_t **partb);
 
-void print_buckets(int noparts, 
-                   int bucketsize, 
-                   partb_t partb[][noparts - 1]);
+void print_buckets(int noparts,
+                   int bucketsize,
+                   partb_t **partb);
 
 #endif

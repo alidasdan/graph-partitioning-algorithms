@@ -42,7 +42,7 @@ void create_buckets(int bucketsize,
                     int max_gain,
                     eval_t eval[],
                     allele chrom[],
-                    partb_t partb[][noparts - 1],
+                    partb_t **partb,
                     cells_info_t cells_info[])
 {
     /* read cell gains from cells_info and insert them into buckets */
@@ -73,9 +73,9 @@ void create_buckets(int bucketsize,
 /* select a cell to move */
 void select_cell(int noparts,
                  selected_cell_t scell[],
-                 parts_info_t parts_info[],
+                 parts_info_t *parts_info,
                  cells_t cells[],
-                 partb_t partb[][noparts - 1],
+                 partb_t **partb,
                  cells_info_t cells_info[])
 {
     int max_mov_value = -1;
@@ -150,7 +150,7 @@ void update_gains(int bucketsize,
                   cells_t cells[],
                   nets_t nets[],
                   corn_t cnets[],
-                  partb_t partb[][noparts - 1],
+                  partb_t **partb,
                   cells_info_t cells_info[])
 {
     /* for each neighbor do */
@@ -221,7 +221,7 @@ void create_partb_nodes_of_cell(int bucketsize,
                                 int cell_no,
                                 int part_no,
                                 eval_t eval[],
-                                partb_t partb[][noparts - 1],
+                                partb_t **partb,
                                 cells_info_t cells_info[])
 {
     if (cell_no == -1) {

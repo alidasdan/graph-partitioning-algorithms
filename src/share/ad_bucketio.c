@@ -9,11 +9,11 @@
 
 /* create a partb node */
 void create_partb_node(int noparts,
-                       int mov_cell_no, 
-                       int home_part, 
-                       int mapped_dest_part, 
+                       int mov_cell_no,
+                       int home_part,
+                       int mapped_dest_part,
                        int mov_gain_inx,
-                       partb_t partb[][noparts - 1], 
+                       partb_t **partb,
                        cells_info_t cells_info[])
 {
     bnode_ptr_t tnode_ptr = (bnode_ptr_t) malloc(sizeof(bnode_t));
@@ -69,10 +69,10 @@ void insert_partb_node(bnode_ptr_t tnode_ptr,
 }   /* insert_partb_node */
 
 /* delete all nodes of a cell from partb */
-void delete_partb_nodes_of_cell(int noparts, 
-                                int mov_cell_no, 
+void delete_partb_nodes_of_cell(int noparts,
+                                int mov_cell_no,
                                 int home_part,
-                                partb_t partb[][noparts - 1],
+                                partb_t **partb,
                                 cells_info_t cells_info[])
 {
     for (int mapped_dest_part = 0; mapped_dest_part < (noparts - 1); mapped_dest_part++) {

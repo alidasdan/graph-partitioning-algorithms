@@ -13,9 +13,9 @@ void find_other_cell(int net_no,
                      nets_t nets[]);
  
 /* initialize all bucket indices and pointers */
-void init_buckets(int noparts, 
-                  int bucketsize, 
-                  partb_t partb[][noparts - 1]);
+void init_buckets(int noparts,
+                  int bucketsize,
+                  partb_t **partb);
  
 /* map part no such that home_part is excluded */
 int map_part_no(int dest_part, int home_part);
@@ -36,15 +36,15 @@ void compute_gains(int nocells,
                    cells_info_t cells_info[]);
 
 /* free all allocated nodes */
-void free_nodes(int noparts, 
-                int bucketsize, 
-                partb_t partb[][noparts - 1]);
+void free_nodes(int noparts,
+                int bucketsize,
+                partb_t **partb);
 
 /* count number of bucket nodes */
-void number_nodes(int noparts, 
-                  int bucketsize, 
-                  int *npartb, 
-                  partb_t partb[][noparts - 1]);
+void number_nodes(int noparts,
+                  int bucketsize,
+                  int *npartb,
+                  partb_t **partb);
 
 /* find set of cells to be actually moved */
 int find_move_set(mcells_t mcells[], 

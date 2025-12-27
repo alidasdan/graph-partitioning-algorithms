@@ -11,21 +11,21 @@ int map_gain(int bucketsize,
              eval_t eval[]);
  
 /* fill all bucket arrays */
-void create_buckets(int bucketsize, 
-                    int nocells, 
-                    int noparts, 
+void create_buckets(int bucketsize,
+                    int nocells,
+                    int noparts,
                     int max_gain,
                     eval_t eval[],
                     allele chrom[],
-                    partb_t partb[][noparts - 1],
+                    partb_t **partb,
                     cells_info_t cells_info[]);
 
 /* select a cell to move */
 void select_cell(int noparts,
                  selected_cell_t scell[],
-                 parts_info_t parts_info[],
+                 parts_info_t *parts_info,
                  cells_t cells[],
-                 partb_t partb[][noparts - 1],
+                 partb_t **partb,
                  cells_info_t cells_info[]);
 
 /* move selected cell, and save the move in a file */
@@ -37,7 +37,7 @@ void move_cell(mcells_t mcells[],
 
 /* update gains after a move */
 void update_gains(int bucketsize,
-                  int noparts, 
+                  int noparts,
                   int max_gain,
                   eval_t eval[],
                   selected_cell_t scell[],
@@ -45,7 +45,7 @@ void update_gains(int bucketsize,
                   cells_t cells[],
                   nets_t nets[],
                   corn_t cnets[],
-                  partb_t partb[][noparts - 1],
+                  partb_t **partb,
                   cells_info_t cells_info[]);
 
 /* fill eval array */
@@ -54,12 +54,12 @@ void fill_eval(int max_gain,
                eval_t eval[]);
 
 void create_partb_nodes_of_cell(int bucketsize,
-                                int noparts, 
-                                int max_gain, 
-                                int cell_no, 
+                                int noparts,
+                                int max_gain,
+                                int cell_no,
                                 int part_no,
                                 eval_t eval[],
-                                partb_t partb[][noparts - 1],
+                                partb_t **partb,
                                 cells_info_t cells_info[]);
 
 /* calculate K and scale factor */

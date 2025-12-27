@@ -13,11 +13,11 @@ int map_gain(int mov_gain, int max_gain)
 }   /* map_gain */
  
 /* fill all bucket arrays */
-void create_buckets(int nocells, 
-                    int noparts, 
+void create_buckets(int nocells,
+                    int noparts,
                     int max_gain,
                     allele chrom[],
-                    partb_t partb[][noparts - 1],
+                    partb_t **partb,
                     cells_info_t cells_info[])
 {
     /* read cell gains from cells_info and insert them into buckets */
@@ -47,9 +47,9 @@ void create_buckets(int nocells,
 /* select a cell to move */
 int select_cell(int noparts,
                 selected_cell_t scell[],
-                parts_info_t parts_info[],
+                parts_info_t *parts_info,
                 cells_t cells[],
-                partb_t partb[][noparts - 1],
+                partb_t **partb,
                 cells_info_t cells_info[])
 {
     /*
@@ -138,14 +138,14 @@ void move_cell(mcells_t mcells[],
 }   /* move_cell */
 
 /* update gains after a move */
-void update_gains(int noparts, 
+void update_gains(int noparts,
                   int max_gain,
                   selected_cell_t scell[],
                   allele tchrom[],
                   cells_t cells[],
                   nets_t nets[],
                   corn_t cnets[],
-                  partb_t partb[][noparts - 1],
+                  partb_t **partb,
                   cells_info_t cells_info[])
 {
     /* for each neighbor do */
@@ -203,11 +203,11 @@ void update_gains(int noparts,
     }  /* for i */
 }   /* update_gains */
 
-void create_partb_nodes_of_cell(int noparts, 
-                                int max_gain, 
-                                int cell_no, 
+void create_partb_nodes_of_cell(int noparts,
+                                int max_gain,
+                                int cell_no,
                                 int part_no,
-                                partb_t partb[][noparts - 1],
+                                partb_t **partb,
                                 cells_info_t cells_info[])
 {
     if (cell_no == -1) {

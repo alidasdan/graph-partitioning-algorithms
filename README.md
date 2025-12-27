@@ -113,12 +113,6 @@ cutsize of 85, which is correct as FMS and the other programs will
 check every cutsize they report for correctness. That is, each of the
 executables are self validating.
 
-__NOTE__: When you run this program for a large number of parts (i.e.,
-the 2nd argument on the command line), you may get a seg fault. The
-reason seems to be the allocation of the 2D array 'partb' on the
-stack. When I find time (hopefully soon), I will remove this weakness
-by allocating partb dynamically on the heap.
-
 ## HOW TO TEST
 
 Under 'src', type 'make test' to test each executable on the input

@@ -71,7 +71,7 @@ void print_parts(int nocells,
 void print_parts_info(int nocells,
                       int noparts,
                       allele chrom[],
-                      parts_info_t parts_info[])
+                      parts_info_t *parts_info)
 {
     printf("\nPARTS_INFO\n");
 
@@ -165,12 +165,12 @@ void print_cells_info(int nocells,
     }   /* for i */
 }   /* print_cells_info */
 
-void print_inx(int noparts, partb_t partb[][noparts - 1])
+void print_inx(int noparts, partb_t **partb)
 {
     printf("\nINDICES:\n");
     for (int i = 0; i < noparts; i++) {
         for (int j = 0; j < (noparts - 1); j++) {
-            printf("(%d,%d) max=%d min=%d nobucs=%d\n", 
+            printf("(%d,%d) max=%d min=%d nobucs=%d\n",
                    i, j, partb[i][j].max_inx, partb[i][j].min_inx, partb[i][j].nobuckets);
         }  /* for j */
     }  /* for i */
@@ -178,7 +178,7 @@ void print_inx(int noparts, partb_t partb[][noparts - 1])
 
 void print_buckets(int noparts,
                    int bucketsize,
-                   partb_t partb[][noparts - 1])
+                   partb_t **partb)
 {
     printf("\nPARTB:\n");
 
