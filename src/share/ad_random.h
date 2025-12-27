@@ -5,10 +5,6 @@
 
 #include <stdlib.h>
 
-/* These two lines of code are TERRIBLY necessary */
-double drand48();
-void srand48();
-
 /* initializes random number generator with seed or */
 /* with any value if seed = -1 */
 long randomize(long seed);
